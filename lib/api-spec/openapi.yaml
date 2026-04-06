@@ -3,13 +3,20 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Health Advisory System API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication operations
+  - name: diagnosis
+    description: Symptom diagnosis and advisory operations
+  - name: sessions
+    description: User symptom session history
+
 paths:
   /healthz:
     get:
@@ -24,6 +31,209 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /auth/register:
+    post:
+      operationId: registerUser
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterBody"
+      responses:
+        "201":
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Invalid input or email already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: loginUser
+      tags: [auth]
+      summary: Log in a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      operationId: logoutUser
+      tags: [auth]
+      summary: Log out the current user
+      responses:
+        "200":
+          description: Logged out successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      tags: [auth]
+      summary: Get the currently logged-in user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /diagnosis/symptoms:
+    get:
+      operationId: listSymptoms
+      tags: [diagnosis]
+      summary: Get full list of available symptoms grouped by category
+      responses:
+        "200":
+          description: List of symptom categories and symptoms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SymptomCategory"
+
+  /diagnosis/analyze:
+    post:
+      operationId: analyzeSymptoms
+      tags: [diagnosis]
+      summary: Analyze symptoms and return advisory result
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnalyzeBody"
+      responses:
+        "200":
+          description: Diagnosis advisory result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiagnosisResult"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /sessions:
+    get:
+      operationId: listSessions
+      tags: [sessions]
+      summary: List symptom sessions for the current user
+      responses:
+        "200":
+          description: List of past symptom sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SymptomSession"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /sessions/{id}:
+    get:
+      operationId: getSession
+      tags: [sessions]
+      summary: Get a specific symptom session by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Symptom session details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SymptomSession"
+        "404":
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /sessions/stats:
+    get:
+      operationId: getSessionStats
+      tags: [sessions]
+      summary: Get aggregated stats about the user's past sessions (top conditions, triage breakdown)
+      responses:
+        "200":
+          description: Session statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionStats"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /diagnosis/diseases:
+    get:
+      operationId: listDiseases
+      tags: [diagnosis]
+      summary: List all diseases the advisory engine can detect
+      responses:
+        "200":
+          description: List of detectable diseases
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DiseaseInfo"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +244,265 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+
+    RegisterBody:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        age:
+          type: ["integer", "null"]
+        gender:
+          type: ["string", "null"]
+      required:
+        - name
+        - email
+        - password
+
+    LoginBody:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        age:
+          type: ["integer", "null"]
+        gender:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - email
+        - createdAt
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        message:
+          type: string
+      required:
+        - user
+        - message
+
+    Symptom:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        description:
+          type: ["string", "null"]
+      required:
+        - id
+        - label
+
+    SymptomCategory:
+      type: object
+      properties:
+        category:
+          type: string
+        symptoms:
+          type: array
+          items:
+            $ref: "#/components/schemas/Symptom"
+      required:
+        - category
+        - symptoms
+
+    AnalyzeBody:
+      type: object
+      properties:
+        symptoms:
+          type: array
+          items:
+            type: string
+        age:
+          type: ["integer", "null"]
+        gender:
+          type: ["string", "null"]
+        durationDays:
+          type: ["integer", "null"]
+        saveSession:
+          type: boolean
+      required:
+        - symptoms
+
+    MatchedCondition:
+      type: object
+      properties:
+        disease:
+          type: string
+        confidence:
+          type: number
+        matchedSymptoms:
+          type: array
+          items:
+            type: string
+        triageLevel:
+          type: string
+        triageDescription:
+          type: string
+        selfCareAdvice:
+          type: array
+          items:
+            type: string
+        whenToSeeDoctor:
+          type: string
+        commonIn:
+          type: ["string", "null"]
+      required:
+        - disease
+        - confidence
+        - matchedSymptoms
+        - triageLevel
+        - triageDescription
+        - selfCareAdvice
+        - whenToSeeDoctor
+
+    DiagnosisResult:
+      type: object
+      properties:
+        sessionId:
+          type: ["integer", "null"]
+        topCondition:
+          $ref: "#/components/schemas/MatchedCondition"
+        otherConditions:
+          type: array
+          items:
+            $ref: "#/components/schemas/MatchedCondition"
+        generalAdvice:
+          type: string
+        disclaimer:
+          type: string
+        analyzedAt:
+          type: string
+      required:
+        - topCondition
+        - otherConditions
+        - generalAdvice
+        - disclaimer
+        - analyzedAt
+
+    SymptomSession:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: ["integer", "null"]
+        symptoms:
+          type: array
+          items:
+            type: string
+        age:
+          type: ["integer", "null"]
+        gender:
+          type: ["string", "null"]
+        durationDays:
+          type: ["integer", "null"]
+        topCondition:
+          type: string
+        triageLevel:
+          type: string
+        result:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+      required:
+        - id
+        - symptoms
+        - topCondition
+        - triageLevel
+        - result
+        - createdAt
+
+    SessionStats:
+      type: object
+      properties:
+        totalSessions:
+          type: integer
+        triageBreakdown:
+          type: object
+          additionalProperties:
+            type: integer
+        topConditions:
+          type: array
+          items:
+            type: object
+            properties:
+              condition:
+                type: string
+              count:
+                type: integer
+            required:
+              - condition
+              - count
+        recentSession:
+          $ref: "#/components/schemas/SymptomSession"
+      required:
+        - totalSessions
+        - triageBreakdown
+        - topConditions
+
+    DiseaseInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        commonSymptoms:
+          type: array
+          items:
+            type: string
+        triageLevel:
+          type: string
+        prevalence:
+          type: ["string", "null"]
+      required:
+        - id
+        - name
+        - description
+        - commonSymptoms
+        - triageLevel
