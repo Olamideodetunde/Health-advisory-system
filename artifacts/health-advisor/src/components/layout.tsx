@@ -8,6 +8,7 @@ import { getGetCurrentUserQueryKey } from "@workspace/api-client-react";
 import { Menu, User, LogOut, History, BookOpen, LayoutDashboard } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { LogoMark } from "@/components/logo";
+import { PwaInstallBanner } from "@/components/pwa-install";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -175,6 +176,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <p>© {new Date().getFullYear()} HealthAdvisor. All rights reserved.</p>
         </div>
       </footer>
+
+      <PwaInstallBanner />
     </div>
   );
 }
