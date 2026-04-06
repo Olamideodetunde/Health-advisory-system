@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { useLogoutUser } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getGetCurrentUserQueryKey } from "@workspace/api-client-react";
-import { Activity, Menu, X, User, LogOut, History, BookOpen, LayoutDashboard } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Menu, User, LogOut, History, BookOpen, LayoutDashboard } from "lucide-react";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { LogoMark } from "@/components/logo";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -40,7 +41,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-primary hover:opacity-90 transition-opacity">
-            <Activity className="h-6 w-6" />
+            <LogoMark size={28} />
             <span className="font-semibold text-lg tracking-tight">HealthAdvisor</span>
           </Link>
 
@@ -97,11 +98,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[80vw] sm:w-[350px] flex flex-col">
+                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                 <div className="flex items-center gap-2 text-primary mb-8">
-                  <Activity className="h-6 w-6" />
+                  <LogoMark size={26} />
                   <span className="font-semibold text-lg">HealthAdvisor</span>
                 </div>
-                
+
                 <nav className="flex flex-col gap-4">
                   {navLinks.map((link) => {
                     const Icon = link.icon;
@@ -163,11 +165,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <footer className="border-t bg-muted/40 py-8 mt-auto">
         <div className="container mx-auto px-4 md:px-6 text-center text-sm text-muted-foreground">
           <div className="flex items-center justify-center gap-2 mb-4 text-primary opacity-80">
-            <Activity className="h-5 w-5" />
+            <LogoMark size={20} />
             <span className="font-medium">HealthAdvisor</span>
           </div>
           <p className="max-w-md mx-auto mb-4">
-            Providing accessible, clear, and reassuring health guidance. 
+            Providing accessible, clear, and reassuring health guidance.
             This tool is for informational purposes and does not replace professional medical advice.
           </p>
           <p>© {new Date().getFullYear()} HealthAdvisor. All rights reserved.</p>

@@ -1,11 +1,11 @@
 import { useListSessions } from "@workspace/api-client-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/lib/auth";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { TriageBadge } from "@/components/triage-badge";
-import { History as HistoryIcon, ArrowRight, ChevronRight, Activity } from "lucide-react";
+import { History as HistoryIcon } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 export default function History() {
@@ -78,10 +78,10 @@ export default function History() {
                       ))}
                     </div>
                   </div>
-                  
+
                   {session.result && (
                     <>
-                      {/* @ts-ignore - Assuming we have selfCareAdvice in the result object */}
+                      {/* @ts-ignore */}
                       {session.result.topCondition?.selfCareAdvice && (
                         <div>
                           <h4 className="text-sm font-medium text-muted-foreground mb-2 uppercase tracking-wider">Recommended Action</h4>
@@ -98,7 +98,7 @@ export default function History() {
                       )}
                     </>
                   )}
-                  
+
                   <div className="pt-2">
                     <Button variant="outline" size="sm" className="w-full sm:w-auto" asChild>
                       <Link href="/check">Check these symptoms again</Link>
@@ -115,7 +115,7 @@ export default function History() {
             <HistoryIcon className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
             <h3 className="text-xl font-semibold mb-2">No history found</h3>
             <p className="text-muted-foreground max-w-sm mb-6">
-              You haven't completed any symptom checks yet. Your results will be saved here automatically.
+              You have not completed any symptom checks yet. Your results will be saved here automatically.
             </p>
             <Button asChild>
               <Link href="/check">Start a symptom check</Link>

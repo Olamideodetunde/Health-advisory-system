@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TriageBadge } from "@/components/triage-badge";
-import { Activity, ArrowRight, ArrowLeft, CheckCircle2, ShieldAlert, HeartPulse, Shield, AlertTriangle } from "lucide-react";
+import { ArrowRight, ArrowLeft, CheckCircle2, HeartPulse, Shield, AlertTriangle, AlertCircle, Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { Link } from "wouter";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -15,22 +15,20 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 export default function Check() {
   const { isAuthenticated } = useAuth();
   const [step, setStep] = useState(1);
-  
-  // Form State
+
   const [age, setAge] = useState<string>("");
   const [gender, setGender] = useState<string>("");
   const [durationDays, setDurationDays] = useState<string>("");
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
-  
-  // API Hooks
+
   const { data: symptomCategories, isLoading: isLoadingSymptoms } = useListSymptoms();
   const analyzeMutation = useAnalyzeSymptoms();
 
   const handleNext = () => setStep(s => Math.min(s + 1, 3));
   const handleBack = () => setStep(s => Math.max(s - 1, 1));
-  
+
   const toggleSymptom = (id: string) => {
-    setSelectedSymptoms(prev => 
+    setSelectedSymptoms(prev =>
       prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
     );
   };
@@ -60,16 +58,16 @@ export default function Check() {
   return (
     <div className="flex-1 bg-muted/10 py-8 px-4">
       <div className="container mx-auto max-w-2xl">
-        
+
         {step < 4 && (
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2">Symptom Checker</h1>
             <p className="text-muted-foreground">Answer a few questions to get guidance on your symptoms.</p>
-            
+
             <div className="flex items-center gap-2 mt-6">
-              <div className={`h-2 flex-1 rounded-full ${step >= 1 ? 'bg-primary' : 'bg-muted'}`} />
-              <div className={`h-2 flex-1 rounded-full ${step >= 2 ? 'bg-primary' : 'bg-muted'}`} />
-              <div className={`h-2 flex-1 rounded-full ${step >= 3 ? 'bg-primary' : 'bg-muted'}`} />
+              <div className={`h-2 flex-1 rounded-full transition-colors ${step >= 1 ? 'bg-primary' : 'bg-muted'}`} />
+              <div className={`h-2 flex-1 rounded-full transition-colors ${step >= 2 ? 'bg-primary' : 'bg-muted'}`} />
+              <div className={`h-2 flex-1 rounded-full transition-colors ${step >= 3 ? 'bg-primary' : 'bg-muted'}`} />
             </div>
             <div className="flex justify-between text-xs text-muted-foreground mt-2 px-1">
               <span>About You</span>
@@ -92,15 +90,15 @@ export default function Check() {
               <CardContent className="space-y-6">
                 <div className="grid gap-3">
                   <Label htmlFor="age">Age</Label>
-                  <Input 
-                    id="age" 
-                    type="number" 
-                    placeholder="e.g. 35" 
-                    value={age} 
-                    onChange={e => setAge(e.target.value)} 
+                  <Input
+                    id="age"
+                    type="number"
+                    placeholder="e.g. 35"
+                    value={age}
+                    onChange={e => setAge(e.target.value)}
                   />
                 </div>
-                
+
                 <div className="grid gap-3">
                   <Label htmlFor="gender">Gender</Label>
                   <Select value={gender} onValueChange={setGender}>
@@ -115,15 +113,15 @@ export default function Check() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="grid gap-3">
                   <Label htmlFor="duration">How many days have you been feeling unwell?</Label>
-                  <Input 
-                    id="duration" 
-                    type="number" 
-                    placeholder="e.g. 3" 
-                    value={durationDays} 
-                    onChange={e => setDurationDays(e.target.value)} 
+                  <Input
+                    id="duration"
+                    type="number"
+                    placeholder="e.g. 3"
+                    value={durationDays}
+                    onChange={e => setDurationDays(e.target.value)}
                   />
                 </div>
               </CardContent>
@@ -159,23 +157,23 @@ export default function Check() {
                           </h3>
                           <div className="grid sm:grid-cols-2 gap-3">
                             {category.symptoms.map((symptom) => (
-                              <div 
-                                key={symptom.id} 
+                              <div
+                                key={symptom.id}
                                 className={`flex items-start space-x-3 p-3 rounded-lg border transition-colors cursor-pointer ${
-                                  selectedSymptoms.includes(symptom.id) 
-                                    ? 'border-primary bg-primary/5' 
+                                  selectedSymptoms.includes(symptom.id)
+                                    ? 'border-primary bg-primary/5'
                                     : 'border-border hover:bg-muted/50'
                                 }`}
                                 onClick={() => toggleSymptom(symptom.id)}
                               >
-                                <Checkbox 
-                                  id={`symptom-${symptom.id}`} 
+                                <Checkbox
+                                  id={`symptom-${symptom.id}`}
                                   checked={selectedSymptoms.includes(symptom.id)}
                                   onCheckedChange={() => toggleSymptom(symptom.id)}
                                   className="mt-0.5"
                                 />
                                 <div className="grid gap-1.5 leading-none">
-                                  <label 
+                                  <label
                                     htmlFor={`symptom-${symptom.id}`}
                                     className="font-medium text-sm cursor-pointer"
                                   >
@@ -200,8 +198,8 @@ export default function Check() {
                 <Button variant="outline" onClick={handleBack}>
                   <ArrowLeft className="mr-2 h-4 w-4" /> Back
                 </Button>
-                <Button 
-                  onClick={handleNext} 
+                <Button
+                  onClick={handleNext}
                   disabled={selectedSymptoms.length === 0}
                 >
                   Review ({selectedSymptoms.length}) <ArrowRight className="ml-2 h-4 w-4" />
@@ -268,11 +266,8 @@ export default function Check() {
             <div className="space-y-6">
               {analyzeMutation.isPending ? (
                 <Card className="border-none shadow-sm min-h-[400px] flex flex-col items-center justify-center text-center p-8">
-                  <div className="relative">
-                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
-                      <Activity className="h-8 w-8 text-primary animate-pulse" />
-                    </div>
-                    <div className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                    <Loader2 className="h-8 w-8 text-primary animate-spin" />
                   </div>
                   <h3 className="text-2xl font-semibold mb-2">Analyzing your symptoms</h3>
                   <p className="text-muted-foreground">Gathering insights and recommendations...</p>
@@ -281,7 +276,7 @@ export default function Check() {
                 <Card className="border-none shadow-sm border-destructive/20 bg-destructive/5">
                   <CardContent className="flex flex-col items-center text-center pt-8 pb-8">
                     <AlertTriangle className="h-12 w-12 text-destructive mb-4" />
-                    <h3 className="text-xl font-bold mb-2">We couldn't complete the analysis</h3>
+                    <h3 className="text-xl font-bold mb-2">We could not complete the analysis</h3>
                     <p className="text-muted-foreground mb-6">There was an issue processing your symptoms. Please try again.</p>
                     <Button onClick={handleAnalyze} variant="outline">Try Again</Button>
                   </CardContent>
@@ -311,7 +306,7 @@ export default function Check() {
                         </div>
                       </div>
                     </CardHeader>
-                    
+
                     <CardContent className="space-y-6">
                       <div>
                         <h4 className="font-semibold text-lg flex items-center gap-2 mb-3">

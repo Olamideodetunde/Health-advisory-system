@@ -16,9 +16,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle, Activity } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
+import { LogoMark } from "@/components/logo";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address." }),
@@ -67,8 +68,8 @@ export default function Login() {
     <div className="flex-1 flex items-center justify-center p-4 min-h-[calc(100vh-8rem)]">
       <div className="w-full max-w-md animate-in fade-in zoom-in-95 duration-500">
         <div className="flex justify-center mb-8">
-          <div className="flex items-center gap-2 text-primary">
-            <Activity className="h-8 w-8" />
+          <div className="flex items-center gap-2.5 text-primary">
+            <LogoMark size={34} />
             <span className="font-bold text-2xl">HealthAdvisor</span>
           </div>
         </div>

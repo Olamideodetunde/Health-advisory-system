@@ -17,10 +17,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle, Activity } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { LogoMark } from "@/components/logo";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -83,8 +84,8 @@ export default function Register() {
     <div className="flex-1 flex items-center justify-center p-4 py-12 min-h-[calc(100vh-8rem)]">
       <div className="w-full max-w-md animate-in fade-in zoom-in-95 duration-500">
         <div className="flex justify-center mb-8">
-          <div className="flex items-center gap-2 text-primary">
-            <Activity className="h-8 w-8" />
+          <div className="flex items-center gap-2.5 text-primary">
+            <LogoMark size={34} />
             <span className="font-bold text-2xl">HealthAdvisor</span>
           </div>
         </div>
@@ -146,10 +147,10 @@ export default function Register() {
                     </FormItem>
                   )}
                 />
-                
+
                 <div className="grid grid-cols-2 gap-4 pt-2 border-t mt-4">
                   <div className="col-span-2 text-sm font-medium text-muted-foreground">Optional details for better guidance</div>
-                  
+
                   <FormField
                     control={form.control}
                     name="age"
@@ -157,28 +158,28 @@ export default function Register() {
                       <FormItem>
                         <FormLabel>Age</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
-                            placeholder="e.g. 35" 
-                            disabled={registerMutation.isPending} 
+                          <Input
+                            type="number"
+                            placeholder="e.g. 35"
+                            disabled={registerMutation.isPending}
                             {...field}
-                            value={field.value || ""} 
+                            value={field.value || ""}
                           />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="gender"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Gender</FormLabel>
-                        <Select 
-                          disabled={registerMutation.isPending} 
-                          onValueChange={field.onChange} 
+                        <Select
+                          disabled={registerMutation.isPending}
+                          onValueChange={field.onChange}
                           defaultValue={field.value}
                         >
                           <FormControl>
@@ -198,7 +199,7 @@ export default function Register() {
                     )}
                   />
                 </div>
-                
+
                 <Button type="submit" className="w-full mt-6" disabled={registerMutation.isPending}>
                   {registerMutation.isPending ? "Creating account..." : "Create account"}
                 </Button>
