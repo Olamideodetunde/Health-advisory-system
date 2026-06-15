@@ -57,6 +57,10 @@ app.use("/api", router);
 const frontendBuildPath = path.resolve(import.meta.dirname, "../../health-advisor/dist/public");
 
 if (fs.existsSync(frontendBuildPath)) {
+  app.get("/sw.js", (req, res) => {
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.sendFile(path.join(frontendBuildPath, "sw.js"));
+  });
   app.use(express.static(frontendBuildPath));
   app.get("*any", (req, res) => {
     res.sendFile(path.join(frontendBuildPath, "index.html"));
