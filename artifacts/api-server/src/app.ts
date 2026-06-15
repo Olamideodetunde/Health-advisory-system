@@ -58,11 +58,11 @@ const frontendBuildPath = path.resolve(import.meta.dirname, "../../health-adviso
 
 if (fs.existsSync(frontendBuildPath)) {
   app.use(express.static(frontendBuildPath));
-  app.get("*", (req, res) => {
+  app.get("*any", (req, res) => {
     res.sendFile(path.join(frontendBuildPath, "index.html"));
   });
 } else {
-  app.get("*", (req, res) => {
+  app.get("*any", (req, res) => {
     res.status(404).send("Frontend build not found. Did you run the build script?");
   });
 }
