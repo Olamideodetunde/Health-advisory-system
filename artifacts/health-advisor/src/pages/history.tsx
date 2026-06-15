@@ -1,4 +1,4 @@
-import { useListSessions } from "@workspace/api-client-react";
+import { useListSessions, getListSessionsQueryKey } from "@workspace/api-client-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/lib/auth";
 import { Link, useLocation } from "wouter";
@@ -14,6 +14,7 @@ export default function History() {
 
   const { data: sessions, isLoading: sessionsLoading } = useListSessions({
     query: {
+      queryKey: getListSessionsQueryKey(),
       enabled: isAuthenticated
     }
   });

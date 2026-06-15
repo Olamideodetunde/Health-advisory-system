@@ -4,6 +4,8 @@ import pinoHttp from "pino-http";
 import session from "express-session";
 import router from "./routes";
 import { logger } from "./lib/logger";
+import fs from "node:fs";
+import path from "node:path";
 
 const app: Express = express();
 
@@ -51,5 +53,18 @@ app.use(
 );
 
 app.use("/api", router);
+
+const frontendBuildPath = path.resolve(import.meta.dirname, "../../health-advisor/dist/public");
+
+if (fs.existsSync(frontendBuildPath)) {
+  app.use(express.static(frontendBuildPath));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(frontendBuildPath, "index.html"));
+  });
+} else {
+  app.get("*", (req, res) => {
+    res.status(404).send("Frontend build not found. Did you run the build script?");
+  });
+}
 
 export default app;

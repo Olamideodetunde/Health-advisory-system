@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect } from "react";
 import { useGetCurrentUser } from "@workspace/api-client-react";
-import type { User } from "@workspace/api-client-react/src/generated/api.schemas";
+import type { User } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getGetCurrentUserQueryKey } from "@workspace/api-client-react";
 
@@ -15,6 +15,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { data: user, isLoading, isError } = useGetCurrentUser({
     query: {
+      queryKey: getGetCurrentUserQueryKey(),
       retry: false,
     }
   });

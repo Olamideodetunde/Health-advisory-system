@@ -1,5 +1,5 @@
 import { useAuth } from "@/lib/auth";
-import { useGetSessionStats } from "@workspace/api-client-react";
+import { useGetSessionStats, getGetSessionStatsQueryKey } from "@workspace/api-client-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ export default function Dashboard() {
 
   const { data: stats, isLoading: statsLoading, isError } = useGetSessionStats({
     query: {
+      queryKey: getGetSessionStatsQueryKey(),
       enabled: isAuthenticated,
       retry: false
     }

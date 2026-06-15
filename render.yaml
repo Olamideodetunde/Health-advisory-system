@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: health-advisory-system
+    env: node
+    plan: free
+    buildCommand: pnpm install --ignore-scripts && pnpm run build
+    startCommand: pnpm --filter @workspace/db run push && pnpm --filter @workspace/api-server run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: BASE_PATH
+        value: /
+      - key: DATABASE_URL
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false
