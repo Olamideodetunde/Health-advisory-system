@@ -1,8 +1,6 @@
-import React, { createContext, useContext, useEffect } from "react";
-import { useGetCurrentUser } from "@workspace/api-client-react";
+import React, { createContext, useContext } from "react";
+import { useGetCurrentUser, getGetCurrentUserQueryKey } from "@workspace/api-client-react";
 import type { User } from "@workspace/api-client-react";
-import { useQueryClient } from "@tanstack/react-query";
-import { getGetCurrentUserQueryKey } from "@workspace/api-client-react";
 
 interface AuthContextType {
   user: User | null;
@@ -17,6 +15,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     query: {
       queryKey: getGetCurrentUserQueryKey(),
       retry: false,
+      // Don't refetch on window focus — this causes a 401 console spam
+      // every time the user switches tabs when they're not logged in.
+      // Auth state is refreshed on page load and after login/logout via
+      // queryClient.invalidateQueries().
+      refetchOnWindowFocus: false,
+      // Treat the session as fresh for 5 minutes — avoids redundant
+      // background refetches while the user is actively browsing.
+      staleTime: 5 * 60 * 1000,
     }
   });
 
