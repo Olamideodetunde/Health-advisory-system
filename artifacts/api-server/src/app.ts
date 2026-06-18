@@ -2,12 +2,18 @@ import express, { type Express } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
 import session from "express-session";
+import connectPgSimple from "connect-pg-simple";
+import { pool } from "@workspace/db";
 import router from "./routes";
 import { logger } from "./lib/logger";
 import fs from "node:fs";
 import path from "node:path";
 
+const PgSession = connectPgSimple(session);
 const app: Express = express();
+
+// Trust the first reverse proxy (required for secure cookies on Render/Heroku)
+app.set("trust proxy", 1);
 
 app.use(
   pinoHttp({
@@ -40,6 +46,11 @@ if (!sessionSecret) {
 
 app.use(
   session({
+    store: new PgSession({
+      pool,
+      tableName: "session",
+      createTableIfMissing: true,
+    }),
     secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
