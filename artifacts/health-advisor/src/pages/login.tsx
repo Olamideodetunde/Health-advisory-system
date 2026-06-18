@@ -48,8 +48,15 @@ export default function Login() {
     loginMutation.mutate(
       { data },
       {
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: getGetCurrentUserQueryKey() });
+        onSuccess: async () => {
+          // Wait for the auth query to fully refetch with the new session
+          // cookie before navigating. Without this await, the dashboard
+          // mounts and calls /api/auth/me before the new cookie is
+          // established in the request pipeline, causing a 401 race.
+          await queryClient.invalidateQueries({
+            queryKey: getGetCurrentUserQueryKey(),
+            refetchType: "all",
+          });
           toast({
             title: "Welcome back",
             description: "You have successfully signed in.",

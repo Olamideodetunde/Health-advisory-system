@@ -64,8 +64,11 @@ export default function Register() {
         gender: data.gender || undefined,
       }},
       {
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: getGetCurrentUserQueryKey() });
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({
+            queryKey: getGetCurrentUserQueryKey(),
+            refetchType: "all",
+          });
           toast({
             title: "Account created",
             description: "Welcome to HealthAdvisor.",
