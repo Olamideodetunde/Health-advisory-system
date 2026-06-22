@@ -54,6 +54,10 @@ if (fs.existsSync(frontendBuildPath)) {
   });
   app.use(express.static(frontendBuildPath));
   app.get("*any", (req, res) => {
+    if (req.path.includes(".") || req.path.startsWith("/assets/")) {
+      res.status(404).end();
+      return;
+    }
     res.sendFile(path.join(frontendBuildPath, "index.html"));
   });
 } else {
