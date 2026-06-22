@@ -50,6 +50,18 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // Handle SPA navigation requests by fetching from network, falling back to cached "/" shell
+  if (request.mode === "navigate") {
+    event.respondWith(
+      fetch(request).catch(() => {
+        return caches.match("/").then((cached) => {
+          return cached || new Response("Offline. Connection error.", { status: 503 });
+        });
+      })
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(request).then((cached) => {
       const networkFetch = fetch(request).then((response) => {
@@ -58,6 +70,9 @@ self.addEventListener("fetch", (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(request, clonedResponse));
         }
         return response;
+      }).catch((err) => {
+        if (cached) return cached;
+        throw err;
       });
       return cached || networkFetch;
     })
