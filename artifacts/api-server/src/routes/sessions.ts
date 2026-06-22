@@ -6,8 +6,7 @@ import { requireAuth } from "../middlewares/auth";
 const router = Router();
 
 router.get("/sessions/stats", requireAuth, async (req, res): Promise<void> => {
-  const session = req.session as { userId?: number };
-  const userId = session.userId!;
+  const userId = req.userId!;
 
   const sessions = await db
     .select()
@@ -47,8 +46,7 @@ router.get("/sessions/stats", requireAuth, async (req, res): Promise<void> => {
 });
 
 router.get("/sessions", requireAuth, async (req, res): Promise<void> => {
-  const session = req.session as { userId?: number };
-  const userId = session.userId!;
+  const userId = req.userId!;
 
   const sessions = await db
     .select()
@@ -73,8 +71,7 @@ router.get("/sessions/:id", requireAuth, async (req, res): Promise<void> => {
     return;
   }
 
-  const session = req.session as { userId?: number };
-  const userId = session.userId!;
+  const userId = req.userId!;
 
   const [found] = await db
     .select()

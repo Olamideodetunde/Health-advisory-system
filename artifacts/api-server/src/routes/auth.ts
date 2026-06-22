@@ -1,5 +1,6 @@
 import { Router } from "express";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import { db, usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { logger } from "../lib/logger";
@@ -27,8 +28,15 @@ router.post("/auth/register", async (req, res): Promise<void> => {
     .values({ name, email, passwordHash, age: age ?? null, gender: gender ?? null })
     .returning();
 
-  const session = req.session as { userId?: number };
-  session.userId = user.id;
+  const jwtSecret = process.env.JWT_SECRET!;
+  const token = jwt.sign({ userId: user.id }, jwtSecret, { expiresIn: "7d" });
+
+  res.cookie("token", token, {
+    secure: process.env.NODE_ENV === "production",
+    httpOnly: true,
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
 
   req.log.info({ userId: user.id }, "User registered");
 
@@ -66,8 +74,15 @@ router.post("/auth/login", async (req, res): Promise<void> => {
     return;
   }
 
-  const session = req.session as { userId?: number };
-  session.userId = user.id;
+  const jwtSecret = process.env.JWT_SECRET!;
+  const token = jwt.sign({ userId: user.id }, jwtSecret, { expiresIn: "7d" });
+
+  res.cookie("token", token, {
+    secure: process.env.NODE_ENV === "production",
+    httpOnly: true,
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
 
   req.log.info({ userId: user.id }, "User logged in");
 
@@ -85,22 +100,32 @@ router.post("/auth/login", async (req, res): Promise<void> => {
 });
 
 router.post("/auth/logout", async (req, res): Promise<void> => {
-  req.session.destroy((err) => {
-    if (err) {
-      logger.error({ err }, "Session destroy error");
-    }
-    res.json({ message: "Logged out successfully" });
+  res.clearCookie("token", {
+    secure: process.env.NODE_ENV === "production",
+    httpOnly: true,
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   });
+  res.json({ message: "Logged out successfully" });
 });
 
 router.get("/auth/me", async (req, res): Promise<void> => {
-  const session = req.session as { userId?: number };
-  if (!session.userId) {
+  const token = req.cookies?.token;
+  if (!token) {
     res.status(401).json({ error: "Not authenticated" });
     return;
   }
 
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, session.userId));
+  let userId: number;
+  try {
+    const jwtSecret = process.env.JWT_SECRET!;
+    const decoded = jwt.verify(token, jwtSecret) as { userId: number };
+    userId = decoded.userId;
+  } catch (err) {
+    res.status(401).json({ error: "Not authenticated" });
+    return;
+  }
+
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId));
 
   if (!user) {
     res.status(401).json({ error: "User not found" });

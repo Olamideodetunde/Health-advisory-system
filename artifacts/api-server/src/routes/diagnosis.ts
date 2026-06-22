@@ -1,4 +1,5 @@
 import { Router } from "express";
+import jwt from "jsonwebtoken";
 import { db, symptomSessionsTable } from "@workspace/db";
 import { getSymptomCategories, getDiseases, analyzeSymptoms, SYMPTOM_CATEGORIES } from "../lib/diagnosticEngine";
 import { openai } from "@workspace/integrations-openai-ai-server";
@@ -227,9 +228,19 @@ router.post("/diagnosis/analyze", async (req, res): Promise<void> => {
     return;
   }
 
-  const session = req.session as { userId?: number };
+  let userId: number | undefined = undefined;
+  const token = req.cookies?.token;
+  if (token) {
+    try {
+      const jwtSecret = process.env.JWT_SECRET!;
+      const decoded = jwt.verify(token, jwtSecret) as { userId: number };
+      userId = decoded.userId;
+    } catch (err) {
+      // Ignored: invalid token, treat as anonymous
+    }
+  }
 
-  if (saveSession === true && !session.userId) {
+  if (saveSession === true && !userId) {
     res.status(401).json({ error: "Authentication required to save session history" });
     return;
   }
@@ -245,12 +256,12 @@ router.post("/diagnosis/analyze", async (req, res): Promise<void> => {
 
   let sessionId: number | null = null;
 
-  if (saveSession !== false && session.userId) {
+  if (saveSession !== false && userId) {
     try {
       const [saved] = await db
         .insert(symptomSessionsTable)
         .values({
-          userId: session.userId,
+          userId: userId,
           symptoms,
           age: age ?? null,
           gender: gender ?? null,
